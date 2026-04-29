@@ -160,20 +160,22 @@ body {
 
 .rocket-container {
   position: absolute;
-  transform: translate(-50%, -50%);
   z-index: 10;
   cursor: pointer;
-  transition: left 2.5s cubic-bezier(0.25, 0.1, 0.25, 1),
-              top 2.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: none;
 }
 
-.rocket-container.flying {
+.rocket-container.rocket-flying {
   z-index: 15;
+  transition: left 2.2s cubic-bezier(0.34, 0.05, 0.25, 1),
+              top 2.2s cubic-bezier(0.34, 0.05, 0.25, 1),
+              transform 2.2s cubic-bezier(0.34, 0.05, 0.25, 1) !important;
 }
 
-.rocket-container.landed {
+.rocket-container.rocket-landed {
   z-index: 4;
   cursor: default;
+  transition: transform 0.5s ease-out !important;
 }
 
 .rocket-body {
@@ -195,24 +197,24 @@ body {
   text-shadow: 0 0 4px rgba(0,0,0,0.8);
 }
 
-.rocket-idle .rocket-svg {
+.rocket-idle .rocket-body {
   animation: hover-rocket 2.5s ease-in-out infinite;
   animation-delay: var(--hover-delay, 0s);
 }
 
 @keyframes hover-rocket {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-8px); }
 }
 
-.rocket-launching .rocket-svg {
-  animation: shake 0.15s ease-in-out 4;
+.rocket-launching .rocket-body {
+  animation: shake-launch 0.12s ease-in-out 5;
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  25% { transform: translateX(-3px) rotate(-2deg); }
-  75% { transform: translateX(3px) rotate(2deg); }
+@keyframes shake-launch {
+  0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
+  25% { transform: translateX(-4px) rotate(-3deg) scale(1.05); }
+  75% { transform: translateX(4px) rotate(3deg) scale(1.05); }
 }
 
 .rocket-label {

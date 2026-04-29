@@ -19,6 +19,7 @@ type RocketState = {
   position: { left: string; top: string };
   status: 'idle' | 'launching' | 'flying' | 'landed';
   targetPlanet: number | null;
+  rotation: number;
 };
 
 const planets: Planet[] = [
@@ -82,44 +83,44 @@ const planets: Planet[] = [
 
 const topics: Topic[] = [
   {
-    fallacy: 'Ad Hominem',
+    fallacy: 'Ad Hominem Attack',
     question:
-      "Your friend says 'We shouldn't listen to that scientist about climate change because they once got a parking ticket.' What's wrong with this argument?",
+      "Someone says your favorite teacher's advice is wrong because they dress funny. Does their appearance affect the quality of their advice?",
   },
   {
-    fallacy: 'Straw Man',
+    fallacy: 'Straw Man Fallacy',
     question:
-      "Someone argues 'You want healthier school lunches? So you want to ban all the foods kids actually like and force them to eat tasteless vegetables!' How would you respond?",
+      "Your friend wants a pet dog, but their parent says 'You want to turn our home into a zoo!' Is this a fair representation of wanting one dog?",
   },
   {
     fallacy: 'False Dilemma',
     question:
-      "A politician claims 'Either we cut all funding to education, or our economy will collapse.' What other options might they be ignoring?",
+      "A classmate says 'Either you're with me or against me.' Are these really the only two options in a friendship?",
   },
   {
     fallacy: 'Slippery Slope',
     question:
-      "Your parent says 'If I let you stay up 30 minutes late tonight, next you'll want to stay up all night, then you'll fail school, and end up unemployed!' Is this reasonable? Why or why not?",
+      "Someone argues that if we allow smartphones in class, soon students will demand TVs and video games too. Is this progression inevitable?",
   },
   {
     fallacy: 'Appeal to Authority',
     question:
-      "An advertisement states 'Nine out of ten doctors recommend this candy for your health!' Should we trust this claim? What questions should we ask?",
+      "A celebrity endorses a study method. Should you follow it just because they're famous? What else would you want to know?",
   },
   {
     fallacy: 'Hasty Generalization',
     question:
-      "Your classmate says 'I met two people from that country and they were rude, so everyone from there must be rude.' What's the problem with this thinking?",
+      "You try a new restaurant and the first dish is terrible. Would you conclude that everything on the menu is bad?",
   },
   {
     fallacy: 'Circular Reasoning',
     question:
-      "Someone argues 'This book is true because it says so in the book.' Why is this not a convincing argument? Can you think of a better way to verify the book's claims?",
+      "Someone says 'I'm trustworthy because I always tell the truth, and you should believe me because I'm trustworthy.' What's the problem here?",
   },
   {
     fallacy: 'Red Herring',
     question:
-      "During a debate about homework amounts, someone suddenly brings up 'But what about the quality of cafeteria food?' Is this relevant? How would you redirect the conversation?",
+      "During a discussion about screen time limits, someone brings up 'Books can be harmful too!' Does this address the original topic?",
   },
 ];
 
@@ -147,6 +148,7 @@ export default function Home() {
         position: { left: `${left}%`, top: `${top}%` },
         status: 'idle',
         targetPlanet: null,
+        rotation: 0,
       };
     });
     setRockets(initialRockets);
@@ -158,6 +160,20 @@ export default function Home() {
     const targetPlanetIndex = rocketPlanetMapping[rocketIndex];
     
     if (usedPlanets.has(targetPlanetIndex)) return;
+
+    const currentRocket = rockets[rocketIndex];
+    const targetPlanet = planets[targetPlanetIndex];
+    
+    // Calculate angle for rotation
+    const currentLeft = parseFloat(currentRocket.position.left);
+    const currentTop = parseFloat(currentRocket.position.top);
+    const targetLeft = parseFloat(targetPlanet.position.left);
+    const targetTop = parseFloat(targetPlanet.position.top);
+    
+    const deltaX = targetLeft - currentLeft;
+    const deltaY = targetTop - currentTop;
+    const angleRad = Math.atan2(deltaY, deltaX);
+    const angleDeg = angleRad * (180 / Math.PI) + 90; // +90 to point rocket upward
 
     // Launch sequence
     setRockets((prev) => {
@@ -174,11 +190,11 @@ export default function Home() {
     setTimeout(() => {
       setRockets((prev) => {
         const newRockets = [...prev];
-        const targetPlanet = planets[targetPlanetIndex];
         newRockets[rocketIndex] = {
           ...newRockets[rocketIndex],
           status: 'flying',
           position: targetPlanet.position,
+          rotation: angleDeg,
         };
         return newRockets;
       });
@@ -190,6 +206,7 @@ export default function Home() {
           newRockets[rocketIndex] = {
             ...newRockets[rocketIndex],
             status: 'landed',
+            rotation: 0,
           };
           return newRockets;
         });
@@ -203,7 +220,7 @@ export default function Home() {
             planet: planets[targetPlanetIndex],
           });
         }, 300);
-      }, 2500);
+      }, 2200);
     }, 600);
   };
 
@@ -223,6 +240,7 @@ export default function Home() {
         position: { left: `${left}%`, top: `${top}%` },
         status: 'idle',
         targetPlanet: null,
+        rotation: 0,
       };
     });
     setRockets(resetRockets);
@@ -319,10 +337,13 @@ export default function Home() {
           style={{
             left: rocket.position.left,
             top: rocket.position.top,
+            transform: `translate(-50%, -50%) rotate(${rocket.rotation}deg)`,
           }}
           onClick={() => handleRocketClick(index)}
         >
-          <div className="rocket-body">
+          <div className="rocket-body" style={{
+            '--hover-delay': `${index * 0.15}s`,
+          } as React.CSSProperties}>
             <div className="rocket-number">{index + 1}</div>
             
             {/* Rocket SVG */}
