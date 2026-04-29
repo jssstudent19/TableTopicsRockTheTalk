@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 type Planet = {
   name: string;
@@ -22,105 +22,136 @@ type RocketState = {
   rotation: number;
 };
 
+// Solar system center — pushed down to clear the header title
+const SUN_CX = 50; // % from left
+const SUN_CY = 54; // % from top
+
+// Orbit radii in % of viewport width (larger = bigger system)
+// Inner radii bumped up so planets clear the sun's glow effect (~120px shadow)
+const ORBIT_RADII = [16, 20, 25, 30, 36, 42, 48, 54];
+
+// Evenly spread planets every 45° around the full 360°
+const PLANET_ANGLES_DEG = [0, 45, 90, 135, 180, 225, 270, 315];
+
+// Ellipse ratio: vertical radius = horizontal radius * ELLIPSE_RATIO
+const ELLIPSE_RATIO = 0.5;
+
+function orbitPos(orbitIndex: number) {
+  const r = ORBIT_RADII[orbitIndex];
+  const angleDeg = PLANET_ANGLES_DEG[orbitIndex];
+  const angleRad = (angleDeg * Math.PI) / 180;
+  const x = SUN_CX + r * Math.cos(angleRad);
+  const y = SUN_CY + r * ELLIPSE_RATIO * Math.sin(angleRad);
+  return { left: `${x}%`, top: `${y}%` };
+}
+
 const planets: Planet[] = [
   {
     name: 'Mercury',
-    color: '#8C7853',
-    size: 35,
-    position: { left: '12%', top: '25%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #b39979, #8C7853, #6b5d45)',
+    color: '#9E8E7A',
+    size: 26,
+    position: orbitPos(0),
+    gradient:
+      'radial-gradient(circle at 32% 28%, #c9b8a8 0%, #9E8E7A 40%, #6e5f50 75%, #4a3d30 100%)',
   },
   {
     name: 'Venus',
-    color: '#FFC649',
-    size: 45,
-    position: { left: '25%', top: '65%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #ffd97d, #FFC649, #e6a726)',
+    color: '#E8C56B',
+    size: 38,
+    position: orbitPos(1),
+    gradient:
+      'radial-gradient(circle at 34% 26%, #fff0c0 0%, #f5d580 25%, #E8C56B 55%, #b89030 80%, #8a6a10 100%)',
   },
   {
     name: 'Earth',
-    color: '#4B9CD3',
-    size: 48,
-    position: { left: '42%', top: '75%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #6bb5e8, #4B9CD3, #2e7ab5)',
+    color: '#2E86C1',
+    size: 40,
+    position: orbitPos(2),
+    gradient:
+      'radial-gradient(circle at 36% 30%, #7fd8f7 0%, #3fa8e0 20%, #2E86C1 50%, #1a5c8a 75%, #1a4060 100%)',
   },
   {
     name: 'Mars',
-    color: '#CD5C5C',
-    size: 40,
-    position: { left: '58%', top: '20%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #e67f7f, #CD5C5C, #a84848)',
+    color: '#C1440E',
+    size: 32,
+    position: orbitPos(3),
+    gradient:
+      'radial-gradient(circle at 33% 28%, #f0a090 0%, #d9604a 30%, #C1440E 60%, #8a2a05 85%, #5a1800 100%)',
   },
   {
     name: 'Jupiter',
-    color: '#DAA520',
-    size: 70,
-    position: { left: '75%', top: '55%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #f0c040, #DAA520, #b8871a)',
+    color: '#C88B3A',
+    size: 72,
+    position: orbitPos(4),
+    gradient:
+      'radial-gradient(circle at 38% 33%, #f5d89a 0%, #e0aa55 25%, #C88B3A 55%, #9a6018 80%, #6a4008 100%)',
   },
   {
     name: 'Saturn',
-    color: '#E8D191',
-    size: 65,
-    position: { left: '85%', top: '28%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #f5e5b0, #E8D191, #d1b870)',
+    color: '#D4B862',
+    size: 60,
+    position: orbitPos(5),
+    gradient:
+      'radial-gradient(circle at 36% 30%, #f8ebc0 0%, #e8d088 30%, #D4B862 60%, #a88a30 85%, #7a6010 100%)',
   },
   {
     name: 'Uranus',
-    color: '#4FD0E0',
-    size: 52,
-    position: { left: '18%', top: '80%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #7de4f2, #4FD0E0, #2eb5c4)',
+    color: '#4EC5D0',
+    size: 50,
+    position: orbitPos(6),
+    gradient:
+      'radial-gradient(circle at 34% 28%, #b8f4fa 0%, #70dde8 30%, #4EC5D0 60%, #258898 85%, #145868 100%)',
   },
   {
     name: 'Neptune',
-    color: '#4169E1',
-    size: 50,
-    position: { left: '88%', top: '75%' },
-    gradient: 'radial-gradient(circle at 30% 30%, #6a8fee, #4169E1, #2d4fb8)',
+    color: '#3458C8',
+    size: 48,
+    position: orbitPos(7),
+    gradient:
+      'radial-gradient(circle at 34% 28%, #90aaf8 0%, #5078e8 30%, #3458C8 60%, #1e3898 85%, #0e2068 100%)',
   },
 ];
 
 const topics: Topic[] = [
   {
-    fallacy: 'Ad Hominem Attack',
+    fallacy: '⚖️ Ad Hominem',
     question:
-      "Someone says your favorite teacher's advice is wrong because they dress funny. Does their appearance affect the quality of their advice?",
+      "Has someone ever dismissed your idea just because of who you are — not what you said? Tell us about it, and how you handled it.",
   },
   {
-    fallacy: 'Straw Man Fallacy',
+    fallacy: '🚪 False Dilemma',
     question:
-      "Your friend wants a pet dog, but their parent says 'You want to turn our home into a zoo!' Is this a fair representation of wanting one dog?",
+      "Have you ever been told 'it's either this or nothing'? Share a time someone gave you a black-and-white choice that wasn't really that simple.",
   },
   {
-    fallacy: 'False Dilemma',
+    fallacy: '🎿 Slippery Slope',
     question:
-      "A classmate says 'Either you're with me or against me.' Are these really the only two options in a friendship?",
+      "Has anyone ever warned you that one small decision would lead to a disaster? Talk about a time someone assumed the worst from a small change.",
   },
   {
-    fallacy: 'Slippery Slope',
+    fallacy: '🪆 Straw Man',
     question:
-      "Someone argues that if we allow smartphones in class, soon students will demand TVs and video games too. Is this progression inevitable?",
+      "Has someone ever twisted your words to make your point sound extreme or silly? How did you feel, and what did you actually mean to say?",
   },
   {
-    fallacy: 'Appeal to Authority',
+    fallacy: '🏆 Appeal to Authority',
     question:
-      "A celebrity endorses a study method. Should you follow it just because they're famous? What else would you want to know?",
+      "Have you ever done something — bought a product, followed advice, changed your mind — just because a celebrity or expert said so? Was it worth it?",
   },
   {
-    fallacy: 'Hasty Generalization',
+    fallacy: '🔍 Hasty Generalization',
     question:
-      "You try a new restaurant and the first dish is terrible. Would you conclude that everything on the menu is bad?",
+      "Have you ever judged a place, a food, or a group of people after just one bad experience — and later turned out to be wrong? What changed your mind?",
   },
   {
-    fallacy: 'Circular Reasoning',
+    fallacy: '🐑 Bandwagon',
     question:
-      "Someone says 'I'm trustworthy because I always tell the truth, and you should believe me because I'm trustworthy.' What's the problem here?",
+      "Tell us about a time you did something just because everyone around you was doing it. Looking back, was it the right call — or did you just go with the crowd?",
   },
   {
-    fallacy: 'Red Herring',
+    fallacy: '🔄 Circular Reasoning',
     question:
-      "During a discussion about screen time limits, someone brings up 'Books can be harmful too!' Does this address the original topic?",
+      "Tell us about a rule or belief you grew up with that was never explained — it was just 'the way things are.' Do you still accept it today, and why?",
   },
 ];
 
@@ -132,20 +163,39 @@ export default function Home() {
   } | null>(null);
   const [usedPlanets, setUsedPlanets] = useState<Set<number>>(new Set());
 
+  // Generate stable star positions using a seeded sequence (avoids hydration mismatch)
+  const stars = useMemo(() => {
+    // Simple deterministic pseudo-random using index-based math
+    return Array.from({ length: 200 }, (_, i) => {
+      const s1 = ((i * 9301 + 49297) % 233280) / 233280;
+      const s2 = (((i + 50) * 9301 + 49297) % 233280) / 233280;
+      const s3 = (((i + 100) * 9301 + 49297) % 233280) / 233280;
+      const s4 = (((i + 150) * 9301 + 49297) % 233280) / 233280;
+      const s5 = (((i + 200) * 9301 + 49297) % 233280) / 233280;
+      const s6 = (((i + 250) * 9301 + 49297) % 233280) / 233280;
+      return {
+        left: `${s1 * 100}%`,
+        top: `${s2 * 100}%`,
+        width: `${s3 * 2 + 1}px`,
+        height: `${s4 * 2 + 1}px`,
+        duration: `${s5 * 3 + 1}s`,
+        delay: `${s6 * 3}s`,
+      };
+    });
+  }, []);
+
   // Hardcoded 1:1 rocket-to-planet mapping
   const rocketPlanetMapping = [4, 2, 6, 0, 7, 5, 1, 3]; // Each rocket index maps to a planet index
 
   useEffect(() => {
-    // Initialize rockets in a circular pattern at the center
-    const centerX = 50;
-    const centerY = 50;
-    const radius = 15;
+    // Initialize rockets in a horizontal line at the bottom, well below the solar system
+    const startX = 9;
+    const spacing = 11.5;
+    const bottomY = 93; // pushed well below the solar system
+    
     const initialRockets: RocketState[] = Array.from({ length: 8 }, (_, i) => {
-      const angle = (i * Math.PI * 2) / 8 - Math.PI / 2;
-      const left = centerX + radius * Math.cos(angle);
-      const top = centerY + radius * Math.sin(angle);
       return {
-        position: { left: `${left}%`, top: `${top}%` },
+        position: { left: `${startX + i * spacing}%`, top: `${bottomY}%` },
         status: 'idle',
         targetPlanet: null,
         rotation: 0,
@@ -175,18 +225,19 @@ export default function Home() {
     const angleRad = Math.atan2(deltaY, deltaX);
     const angleDeg = angleRad * (180 / Math.PI) + 90; // +90 to point rocket upward
 
-    // Launch sequence
+    // Launch sequence — rotate to face target during shake, then fly
     setRockets((prev) => {
       const newRockets = [...prev];
       newRockets[rocketIndex] = {
         ...newRockets[rocketIndex],
         status: 'launching',
         targetPlanet: targetPlanetIndex,
+        rotation: angleDeg, // rotate to face planet during shake
       };
       return newRockets;
     });
 
-    // After shake animation, start flying
+    // After shake, fly straight toward planet keeping the same heading
     setTimeout(() => {
       setRockets((prev) => {
         const newRockets = [...prev];
@@ -194,12 +245,12 @@ export default function Home() {
           ...newRockets[rocketIndex],
           status: 'flying',
           position: targetPlanet.position,
-          rotation: angleDeg,
+          rotation: angleDeg, // maintain heading during flight
         };
         return newRockets;
       });
 
-      // Land on planet
+      // Land after flight completes (match CSS transition duration 5000ms)
       setTimeout(() => {
         setRockets((prev) => {
           const newRockets = [...prev];
@@ -213,14 +264,14 @@ export default function Home() {
 
         setUsedPlanets((prev) => new Set(prev).add(targetPlanetIndex));
 
-        // Show popup
+        // Show popup shortly after landing
         setTimeout(() => {
           setSelectedTopic({
             topic: topics[rocketIndex],
             planet: planets[targetPlanetIndex],
           });
-        }, 300);
-      }, 2200);
+        }, 400);
+      }, 5000);
     }, 600);
   };
 
@@ -228,16 +279,14 @@ export default function Home() {
     setUsedPlanets(new Set());
     setSelectedTopic(null);
     
-    // Reset rockets to initial positions
-    const centerX = 50;
-    const centerY = 50;
-    const radius = 15;
+    // Reset rockets to initial positions at bottom
+    const startX = 9;
+    const spacing = 11.5;
+    const bottomY = 93;
+    
     const resetRockets: RocketState[] = Array.from({ length: 8 }, (_, i) => {
-      const angle = (i * Math.PI * 2) / 8 - Math.PI / 2;
-      const left = centerX + radius * Math.cos(angle);
-      const top = centerY + radius * Math.sin(angle);
       return {
-        position: { left: `${left}%`, top: `${top}%` },
+        position: { left: `${startX + i * spacing}%`, top: `${bottomY}%` },
         status: 'idle',
         targetPlanet: null,
         rotation: 0,
@@ -248,35 +297,23 @@ export default function Home() {
 
   return (
     <div className="space-scene">
-      {/* Stars */}
-      {Array.from({ length: 200 }).map((_, i) => (
+      {/* Stars — positions are stable/deterministic to avoid hydration mismatch */}
+      {stars.map((star, i) => (
         <div
           key={`star-${i}`}
           className="star"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            width: `${Math.random() * 2 + 1}px`,
-            height: `${Math.random() * 2 + 1}px`,
-            '--duration': `${Math.random() * 3 + 1}s`,
-            '--delay': `${Math.random() * 3}s`,
+            left: star.left,
+            top: star.top,
+            width: star.width,
+            height: star.height,
+            '--duration': star.duration,
+            '--delay': star.delay,
           } as React.CSSProperties}
         />
       ))}
 
-      {/* Shooting Stars */}
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={`shooting-${i}`}
-          className="shooting-star"
-          style={{
-            left: `${Math.random() * 50}%`,
-            top: `${Math.random() * 50}%`,
-            '--shoot-duration': `${Math.random() * 2 + 2}s`,
-            '--shoot-delay': `${Math.random() * 5}s`,
-          } as React.CSSProperties}
-        />
-      ))}
+
 
       {/* Title */}
       <div className="title-container">
@@ -285,49 +322,49 @@ export default function Home() {
         <p className="instructions">Click a rocket to discover a logical fallacy!</p>
       </div>
 
+      {/* Sun */}
+      <div className="sun" />
+
+      {/* Orbital Rings - elliptical matching planet positions */}
+      {ORBIT_RADII.map((radius, i) => (
+        <div
+          key={`orbit-${i}`}
+          className="planet-orbit"
+          style={{
+            width: `${radius * 2}%`,
+            height: `${radius * 2 * ELLIPSE_RATIO}%`,
+          }}
+        />
+      ))}
+
       {/* Planets */}
       {planets.map((planet, index) => (
-        <div key={`planet-${index}`}>
-          {/* Orbit rings */}
-          <div
-            className="planet-orbit"
-            style={{
-              left: '50%',
-              top: '50%',
-              width: `${
-                Math.sqrt(
-                  Math.pow(parseFloat(planet.position.left) - 50, 2) +
-                    Math.pow(parseFloat(planet.position.top) - 50, 2)
-                ) * 2
-              }%`,
-              height: `${
-                Math.sqrt(
-                  Math.pow(parseFloat(planet.position.left) - 50, 2) +
-                    Math.pow(parseFloat(planet.position.top) - 50, 2)
-                ) * 2
-              }%`,
-            }}
-          />
-          
-          {/* Planet */}
-          <div
-            className={`planet ${usedPlanets.has(index) ? 'planet-glow' : ''}`}
-            style={{
-              left: planet.position.left,
-              top: planet.position.top,
-              width: `${planet.size}px`,
-              height: `${planet.size}px`,
-              background: planet.gradient,
-              boxShadow: usedPlanets.has(index)
-                ? `0 0 30px ${planet.color}, inset 0 0 20px rgba(255,255,255,0.2)`
-                : `0 0 20px ${planet.color}80, inset 0 0 15px rgba(255,255,255,0.1)`,
-            }}
-          >
-            <span className="planet-label">{planet.name}</span>
-            {planet.name === 'Saturn' && <div className="saturn-ring" />}
-          </div>
+        <div
+          key={`planet-${index}`}
+          className={`planet ${usedPlanets.has(index) ? 'planet-glow' : ''}`}
+          style={{
+            left: planet.position.left,
+            top: planet.position.top,
+            width: `${planet.size}px`,
+            height: `${planet.size}px`,
+            background: planet.gradient,
+            boxShadow: usedPlanets.has(index)
+              ? `0 0 40px ${planet.color}, 0 0 18px ${planet.color}, inset -10px -10px 22px rgba(0, 0, 0, 0.55), inset 5px 5px 14px rgba(255, 255, 255, 0.3)`
+              : `0 0 14px ${planet.color}50, inset -10px -10px 22px rgba(0, 0, 0, 0.55), inset 5px 5px 14px rgba(255, 255, 255, 0.25)`,
+          }}
+        >
+          {planet.name === 'Earth' && <div className="earth-clouds" />}
+          {planet.name === 'Jupiter' && <div className="jupiter-bands" />}
+          {planet.name === 'Mars' && <div className="mars-texture" />}
+          {planet.name === 'Saturn' && <div className="saturn-ring" />}
+          {planet.name === 'Uranus' && <div className="uranus-bands" />}
+          {planet.name === 'Neptune' && <div className="neptune-storms" />}
+          <span className="planet-label">{planet.name}</span>
         </div>
       ))}
+
+      {/* Launch Pad Zone separator */}
+      <div className="launch-pad" />
 
       {/* Rockets */}
       {rockets.map((rocket, index) => (

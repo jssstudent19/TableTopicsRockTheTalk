@@ -67,7 +67,7 @@ body {
 
 .title-container {
   position: absolute;
-  top: 2%;
+  top: 1.5%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -76,7 +76,7 @@ body {
 }
 
 .title {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
   background: linear-gradient(135deg, #FFD700, #FF8C00, #FF6B35);
   -webkit-background-clip: text;
@@ -89,18 +89,18 @@ body {
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #a8b4d8;
-  margin-top: 4px;
+  margin-top: 2px;
   font-weight: 300;
   letter-spacing: 4px;
   text-transform: uppercase;
 }
 
 .instructions {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #6b7b9e;
-  margin-top: 8px;
+  margin-top: 4px;
   animation: pulse-text 2s ease-in-out infinite;
 }
 
@@ -109,12 +109,73 @@ body {
   50% { opacity: 1; }
 }
 
+.sun {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 32%, #fffde8 0%, #fff176 15%, #FFD700 40%, #FFA500 70%, #FF8C00 100%);
+  box-shadow:
+    0 0 0 8px rgba(255, 200, 0, 0.08),
+    0 0 40px #FFD700,
+    0 0 80px #FFA500,
+    0 0 120px rgba(255, 140, 0, 0.4),
+    inset 0 0 30px rgba(255, 255, 255, 0.5);
+  z-index: 6;
+  animation: sun-pulse 3s ease-in-out infinite;
+}
+
+@keyframes sun-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 8px rgba(255,200,0,0.08), 0 0 40px #FFD700, 0 0 80px #FFA500, 0 0 120px rgba(255,140,0,0.4), inset 0 0 30px rgba(255,255,255,0.5);
+  }
+  50% { 
+    box-shadow: 0 0 0 16px rgba(255,200,0,0.12), 0 0 60px #FFD700, 0 0 110px #FFA500, 0 0 160px rgba(255,140,0,0.5), inset 0 0 40px rgba(255,255,255,0.6);
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
 .planet {
   position: absolute;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
   transition: box-shadow 0.5s ease;
+  /* Deep 3-D shading: dark side on lower-right, highlight on upper-left */
+  box-shadow:
+    inset -10px -10px 22px rgba(0, 0, 0, 0.55),
+    inset 5px 5px 14px rgba(255, 255, 255, 0.25),
+    0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+/* Bright specular highlight on upper-left */
+.planet::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 14%;
+  width: 35%;
+  height: 35%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(5px);
+  pointer-events: none;
+}
+
+/* Terminator (day-night line) on right side */
+.planet::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 38%;
+  height: 100%;
+  background: radial-gradient(ellipse at right, rgba(0,0,0,0.45) 0%, transparent 80%);
+  border-radius: 0 50% 50% 0;
+  pointer-events: none;
 }
 
 .planet-glow {
@@ -122,54 +183,161 @@ body {
 }
 
 @keyframes planet-landed {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.3); }
+  0%, 100% { filter: brightness(1.1); }
+  50% { filter: brightness(1.4); }
 }
 
 .planet-label {
   position: absolute;
-  bottom: -22px;
+  bottom: -24px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.7rem;
-  color: #8899bb;
+  font-size: 0.65rem;
+  color: #a0b0cc;
   white-space: nowrap;
-  text-shadow: 0 0 8px rgba(0,0,0,0.8);
+  text-shadow: 0 0 10px rgba(0,0,0,0.9);
   letter-spacing: 1px;
+  font-weight: 600;
 }
 
 .saturn-ring {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 130%;
-  height: 30%;
-  transform: translate(-50%, -50%) rotateX(70deg);
-  border: 3px solid rgba(232, 209, 145, 0.5);
+  width: 140%;
+  height: 35%;
+  transform: translate(-50%, -50%) rotateX(75deg);
+  border: 4px solid;
+  border-color: rgba(232, 209, 145, 0.6) rgba(232, 209, 145, 0.4) rgba(232, 209, 145, 0.3);
   border-radius: 50%;
   pointer-events: none;
+  box-shadow: 0 0 15px rgba(232, 209, 145, 0.3);
 }
 
 .planet-orbit {
   position: absolute;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  left: 50%;
+  top: 54%;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+.earth-clouds {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    radial-gradient(ellipse at 60% 40%, rgba(255, 255, 255, 0.3) 0%, transparent 25%),
+    radial-gradient(ellipse at 30% 70%, rgba(255, 255, 255, 0.25) 0%, transparent 20%),
+    radial-gradient(ellipse at 80% 60%, rgba(255, 255, 255, 0.2) 0%, transparent 18%);
+  animation: rotate-clouds 60s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate-clouds {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.jupiter-bands {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: 
+    linear-gradient(to bottom, 
+      transparent 0%, 
+      rgba(139, 105, 20, 0.3) 15%, 
+      transparent 18%,
+      rgba(184, 134, 26, 0.25) 30%,
+      transparent 33%,
+      rgba(139, 105, 20, 0.3) 50%,
+      transparent 53%,
+      rgba(184, 134, 26, 0.25) 70%,
+      transparent 73%,
+      rgba(139, 105, 20, 0.3) 85%,
+      transparent 88%
+    );
+  pointer-events: none;
+}
+
+.mars-texture {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 50%, rgba(100, 30, 10, 0.65) 0%, transparent 9%),
+    radial-gradient(circle at 70% 28%, rgba(100, 30, 10, 0.5) 0%, transparent 7%),
+    radial-gradient(circle at 52% 78%, rgba(100, 30, 10, 0.45) 0%, transparent 11%),
+    radial-gradient(circle at 22% 72%, rgba(100, 30, 10, 0.55) 0%, transparent 8%),
+    radial-gradient(circle at 80% 65%, rgba(80, 20, 5, 0.4) 0%, transparent 6%);
+  pointer-events: none;
+}
+
+.uranus-bands {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background:
+    linear-gradient(to bottom,
+      transparent 0%,
+      rgba(150, 240, 255, 0.18) 20%,
+      transparent 25%,
+      rgba(100, 220, 240, 0.14) 45%,
+      transparent 50%,
+      rgba(150, 240, 255, 0.18) 70%,
+      transparent 75%
+    );
+  pointer-events: none;
+}
+
+.neptune-storms {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 65% 40%, rgba(255, 255, 255, 0.25) 0%, transparent 12%),
+    linear-gradient(to bottom,
+      transparent 0%,
+      rgba(60, 100, 220, 0.25) 25%,
+      transparent 30%,
+      rgba(40, 80, 200, 0.2) 55%,
+      transparent 60%
+    );
+  pointer-events: none;
+}
+
+.launch-pad {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 12%;
+  background: linear-gradient(to top, rgba(5, 10, 30, 0.9) 0%, transparent 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  z-index: 8;
 }
 
 .rocket-container {
   position: absolute;
   z-index: 10;
   cursor: pointer;
-  transition: none;
+  /* Smooth rotation so rocket nose turns to face the planet before launch */
+  transition: transform 0.5s ease-in-out;
 }
 
 .rocket-container.rocket-flying {
   z-index: 15;
-  transition: left 2.2s cubic-bezier(0.34, 0.05, 0.25, 1),
-              top 2.2s cubic-bezier(0.34, 0.05, 0.25, 1),
-              transform 2.2s cubic-bezier(0.34, 0.05, 0.25, 1) !important;
+  /* Only transition position — transform is intentionally not transitioned so heading stays locked */
+  transition: left 5s ease-in-out,
+              top 5s ease-in-out !important;
 }
 
 .rocket-container.rocket-landed {
